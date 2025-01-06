@@ -1,4 +1,4 @@
-const Response = require('../models/Response');
+const Response = require('../models/response');
 const Note = require('../models/note');
 const logger = require('../utils/logger');
 

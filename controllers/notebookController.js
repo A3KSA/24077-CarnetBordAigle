@@ -1,6 +1,6 @@
-const Notebook = require('../models/Notebook');
+const Notebook = require('../models/notebook');
 const Note = require('../models/note'); // Import du modèle Note
-const Response = require('../models/Response'); // Import du modèle Response
+const Response = require('../models/response'); // Import du modèle Response
 const logger = require('../utils/logger');
 
 // Créer un carnet

@@ -1,6 +1,6 @@
 const Note = require('../models/note');
-const Response = require('../models/Response'); // Importer le modèle Response
-const Notebook = require('../models/Notebook'); // Ajustez le chemin si nécessaire
+const Response = require('../models/response'); // Importer le modèle Response
+const Notebook = require('../models/notebook'); // Ajustez le chemin si nécessaire
 const logger = require('../utils/logger');
 
 // Créer une nouvelle note (utilisateur connecté)

@@ -7,4 +7,4 @@ const ResponseSchema = new mongoose.Schema({
   dateCreation: { type: Date, default: Date.now },
 });
 
-module.exports = mongoose.model('Response', ResponseSchema);
+module.exports = mongoose.model('response', ResponseSchema);

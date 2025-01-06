@@ -34,4 +34,4 @@ const MaintenanceSchema = new mongoose.Schema({
     },
 });
 
-module.exports = mongoose.model('Maintenance', MaintenanceSchema);
+module.exports = mongoose.model('maintenance', MaintenanceSchema);
