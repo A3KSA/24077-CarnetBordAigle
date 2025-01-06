@@ -13,15 +13,12 @@ const responseRoutes = require('./routes/responseRoutes');
 
 const app = express();
 
-// Middleware pour servir les fichiers existants dans `public`
-app.use(express.static(path.join(__dirname, 'public')));
+// Configurer le dossier public pour les fichiers statiques
+app.use(express.static(path.join(__dirname, 'public/angular/browser')));
 
-// Middleware pour servir l'application Angular
-app.use('/angular', express.static(path.join(__dirname, 'public/angular')));
-
-// Rediriger toutes les routes Angular vers `index.html`
-app.get('/angular/*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public/angular', 'index.html'));
+// Gérer les routes Angular (SPA)
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public/angular/browser/index.html'));
 });
 
 // Middleware pour parser le JSON
