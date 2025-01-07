@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const express = require('express');
 const path = require('path');
 const mongoose = require('mongoose');
@@ -6,7 +8,10 @@ const logger = require('./utils/logger');
 const cors = require('cors'); // Importer CORS
 const cookieParser = require('cookie-parser');
 const jwt = require('jsonwebtoken');
-require('dotenv').config();
+const http = require('http');
+const https = require('https');
+const fs = require('fs');
+const debug = require('debug')('server'); // Le nom 'server' est une namespace pour vos logs
 const User = require('./models/user'); // Assure-toi que le modèle User est bien référencé
 
 const noteRoutes = require('./routes/noteRoutes');
@@ -18,20 +23,20 @@ const app = express();
 
 const corsOptions = {
     origin: (origin, callback) => {
-      const allowedOrigins = ['http://localhost:5000', 'http://10.10.6.151:5000']; // Origines autorisées
-      if (allowedOrigins.includes(origin) || !origin) {
-        // Autorise les origines autorisées ou les requêtes non-origin (comme Postman)
-        callback(null, true);
-      } else {
-        callback(new Error('Origine non autorisée par CORS'));
-      }
+        const allowedOrigins = ['http://localhost:5000', 'http://10.10.6.151:5000', 'http://a3k.missaticus.ch:5000']; // Origines autorisées
+        if (allowedOrigins.includes(origin) || !origin) {
+            // Autorise les origines autorisées ou les requêtes non-origin (comme Postman)
+            callback(null, true);
+        } else {
+            callback(new Error('Origine non autorisée par CORS'));
+        }
     },
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
-  };
-  
-  app.use(cors(corsOptions));
+};
+
+app.use(cors(corsOptions));
 
 // Middleware pour parser le JSON
 app.use(express.json());
@@ -119,7 +124,42 @@ app.get('*', (req, res) => {
 
 // Démarrage du serveur
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Serveur lancé sur le port ${PORT}`));
+
+// Récupérer les chemins des certificats
+const keyPath = process.env.KEY || null;
+const certPath = process.env.CERT || null;
+
+// Création du serveur HTTP ou HTTPS
+if (keyPath && certPath) {
+    try {
+        const privateKey = fs.readFileSync(keyPath, 'utf8');
+        const certificate = fs.readFileSync(certPath, 'utf8');
+        const credentials = { key: privateKey, cert: certificate };
+
+        debug('Lancement du serveur en HTTPS');
+        server = https.createServer(credentials, app);
+    } catch (err) {
+        console.error('Erreur lors du chargement des certificats HTTPS :', err);
+        console.warn('Basculer vers HTTP');
+        server = http.createServer(app);
+    }
+} else {
+    debug('Aucun certificat défini. Utilisation du serveur HTTP');
+    server = http.createServer(app);
+}
+
+// Configurer les listeners du serveur
+server.listen(PORT, () => {
+    console.log(`Serveur démarré sur le port ${PORT} (${keyPath && certPath ? 'HTTPS' : 'HTTP'})`);
+});
+
+server.on('error', (err) => {
+    console.error('Erreur du serveur :', err);
+});
+
+server.on('listening', () => {
+    console.log(`Serveur en écoute sur ${keyPath && certPath ? 'HTTPS' : 'HTTP'} port ${PORT}`);
+});
 
 
 async function createDefaultAdmin() {
