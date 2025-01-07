@@ -16,7 +16,22 @@ const responseRoutes = require('./routes/responseRoutes');
 
 const app = express();
 
-app.use(cors()); 
+const corsOptions = {
+    origin: (origin, callback) => {
+      const allowedOrigins = ['http://localhost', 'http://10.10.6.151']; // Origines autorisées
+      if (allowedOrigins.includes(origin) || !origin) {
+        // Autorise les origines autorisées ou les requêtes non-origin (comme Postman)
+        callback(null, true);
+      } else {
+        callback(new Error('Origine non autorisée par CORS'));
+      }
+    },
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
+  };
+  
+  app.use(cors(corsOptions));
 
 // Middleware pour parser le JSON
 app.use(express.json());
