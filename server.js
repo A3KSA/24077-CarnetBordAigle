@@ -67,8 +67,7 @@ app.get('/', async (req, res, next) => {
                 res.cookie('authToken', token, {
                     httpOnly: true, // Empêche l'accès via JavaScript
                     expires: midnight, // Définit l'expiration à minuit
-                    secure: false, // Utilisez HTTPS en production
-                    sameSite: 'Lax', // ou 'strict', selon les besoins
+                    secure: true, // Utilisez HTTPS en production
                     path: '/', // Rend le cookie accessible sur toutes les routes
                 });
                 return res.redirect(`/home/${user._id}`); // Rediriger vers Angular avec l'ID utilisateur
