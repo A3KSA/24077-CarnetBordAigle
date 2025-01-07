@@ -4,8 +4,8 @@ const logger = require('../utils/logger');
 
 const cookieOptions = {
   httpOnly: true,       // Empêche l'accès côté client (JavaScript)
-  secure: process.env.NODE_ENV === 'production', // Utilisez HTTPS en production
-  sameSite: 'None',   // Empêche les requêtes inter-domaines
+  secure: false, // Utilisez HTTPS en production
+  sameSite: 'Lax', // ou 'strict', selon les besoins
   maxAge: 30 * 24 * 60 * 60 * 1000, // Durée de validité : 30 jours
 };
 
