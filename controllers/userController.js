@@ -57,8 +57,7 @@ exports.logoutUser = (req, res) => {
     // Supprimer le cookie en le vidant
     res.clearCookie('authToken', {
       httpOnly: true,
-      secure: false, // Utilisez HTTPS en production
-      sameSite: 'Lax', // ou 'strict', selon les besoins
+      secure: true, // Utilisez HTTPS en production
     });
 
     res.status(200).json({ message: 'Déconnexion réussie' });
