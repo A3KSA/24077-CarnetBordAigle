@@ -18,7 +18,7 @@ const app = express();
 
 const corsOptions = {
     origin: (origin, callback) => {
-      const allowedOrigins = ['http://localhost', 'http://10.10.6.151']; // Origines autorisées
+      const allowedOrigins = ['http://localhost:5000', 'http://10.10.6.151:5000']; // Origines autorisées
       if (allowedOrigins.includes(origin) || !origin) {
         // Autorise les origines autorisées ou les requêtes non-origin (comme Postman)
         callback(null, true);
