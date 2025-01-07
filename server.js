@@ -16,12 +16,7 @@ const responseRoutes = require('./routes/responseRoutes');
 
 const app = express();
 
-// Activer CORS
-const corsOptions = {
-    origin: 'http://localhost:5000', // Remplacez par l'origine de votre frontend
-    credentials: true, // Autorise l'envoi des cookies
-  };
-  app.use(cors(corsOptions));  
+app.use(cors()); 
 
 // Middleware pour parser le JSON
 app.use(express.json());
