@@ -4,6 +4,8 @@ const mongoose = require('mongoose');
 const morgan = require('morgan');
 const logger = require('./utils/logger');
 const cors = require('cors'); // Importer CORS
+const cookieParser = require('cookie-parser');
+const jwt = require('jsonwebtoken');
 require('dotenv').config();
 const User = require('./models/user'); // Assure-toi que le modèle User est bien référencé
 
@@ -14,19 +16,58 @@ const responseRoutes = require('./routes/responseRoutes');
 
 const app = express();
 
-// Configurer le dossier public pour les fichiers statiques
-app.use(express.static(path.join(__dirname, 'public/angular/browser')));
-
-// Gérer les routes Angular (SPA)
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public/angular/browser/index.html'));
-});
+// Activer CORS
+const corsOptions = {
+    origin: 'http://localhost:5000', // Remplacez par l'origine de votre frontend
+    credentials: true, // Autorise l'envoi des cookies
+  };
+  app.use(cors(corsOptions));  
 
 // Middleware pour parser le JSON
 app.use(express.json());
 
-// Activer CORS
-app.use(cors());
+// Middleware pour analyser les cookies
+app.use(cookieParser());
+
+// Middleware pour gérer le paramètre utilisateur dans l'URL
+app.get('/', async (req, res, next) => {
+    console.log('Query parameters:', req.query); // Ajoutez ce log pour voir ce qui est reçu
+    const username = req.query.username; // Récupérer l'argument 'username' dans l'URL
+    console.log("username into request: ", username);
+    if (username) {
+        try {
+            const user = await User.findOne({ name: username }); // Utilisez 'name' au lieu de 'username'
+            console.log(user);
+            if (user) {
+                const now = new Date();
+                const midnight = new Date(
+                    now.getFullYear(),
+                    now.getMonth(),
+                    now.getDate() + 1, // Passer au jour suivant pour atteindre minuit
+                    0, 0, 0, 0 // Heure réglée à 00:00:00
+                );
+                const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '30d' });
+                console.log(token);
+                // Ajouter un cookie ou un token pour l'utilisateur
+                res.cookie('authToken', token, {
+                    httpOnly: true, // Empêche l'accès via JavaScript
+                    expires: midnight, // Définit l'expiration à minuit
+                    secure: false, // Définit true si vous utilisez HTTPS
+                    sameSite: 'lax', // ou 'strict', selon les besoins
+                    path: '/', // Rend le cookie accessible sur toutes les routes
+                });
+                return res.redirect(`/home/${user._id}`); // Rediriger vers Angular avec l'ID utilisateur
+            } else {
+                return res.redirect('/login'); // Rediriger vers la page de login si l'utilisateur n'existe pas
+            }
+        } catch (err) {
+            console.error('Erreur lors de la recherche de l\'utilisateur:', err);
+            return res.redirect('/login'); // Redirection en cas d'erreur
+        }
+    } else {
+        next(); // Continuer avec la logique par défaut
+    }
+});
 
 // Connexion à MongoDB
 mongoose
@@ -53,15 +94,18 @@ app.use(
     })
 );
 
-// Routes de base
-app.get('/', (req, res) => {
-    res.send('API du carnet de bord fonctionne 🚀');
-});
-
 app.use('/api/notes', noteRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/notebooks', notebookRoutes);
 app.use('/api/responses', responseRoutes);
+
+// Configurer le dossier public pour les fichiers statiques
+app.use(express.static(path.join(__dirname, 'public/angular/browser')));
+
+// Gérer les routes Angular (SPA)
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public/angular/browser/index.html'));
+});
 
 // Démarrage du serveur
 const PORT = process.env.PORT || 5000;
