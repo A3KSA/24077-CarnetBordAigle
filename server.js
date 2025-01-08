@@ -23,17 +23,24 @@ const app = express();
 
 const corsOptions = {
     origin: (origin, callback) => {
-        const allowedOrigins = ['https://localhost:5000', 'https://10.10.6.151:5000', 'https://a3k.missaticus.ch:5000', 'http://localhost:4200', 'http://10.10.6.151:81/']; // Origines autorisées
-        if (allowedOrigins.includes(origin) || !origin) {
-            // Autorise les origines autorisées ou les requêtes non-origin (comme Postman)
+        const allowedOrigins = [
+            'https://localhost:5000',
+            'https://10.10.6.151:5000',
+            'https://a3k.missaticus.ch:5000',
+            'http://localhost:4200',
+            'http://10.10.6.151:81/',
+        ]; // Origines autorisées
+
+        if (!origin || allowedOrigins.includes(origin)) {
+            // Autorise les requêtes provenant des origines autorisées ou les requêtes sans origine (comme Postman)
             callback(null, true);
         } else {
-            callback(new Error('Origine non autorisée par CORS'));
+            callback(new Error(`Origine non autorisée par CORS : ${origin}`));
         }
     },
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
-    credentials: true,
+    credentials: true, // Autorise l'envoi de cookies et d'autres informations d'identification
 };
 
 app.use(cors(corsOptions));
