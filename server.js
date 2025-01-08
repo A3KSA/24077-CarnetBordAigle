@@ -30,6 +30,13 @@ const corsOptions = {
             'http://localhost:4200',
             'http://10.10.6.151:81',
         ]; // Origines autorisées
+
+        if (!origin || allowedOrigins.includes(origin)) {
+            // Autorise les requêtes provenant des origines autorisées ou les requêtes sans origine (comme Postman)
+            callback(null, true);
+        } else {
+            callback(new Error(`Origine non autorisée par CORS : ${origin}`));
+        }
     },
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
@@ -95,7 +102,6 @@ mongoose
 
 // Middleware pour capturer les erreurs
 app.use((err, req, res, next) => {
-    console.log('CORS request from origin:', req.headers.origin);
     logger.error(`${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
     res.status(500).json({ message: 'Erreur interne du serveur' });
 });
