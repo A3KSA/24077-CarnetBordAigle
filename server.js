@@ -25,6 +25,8 @@ const corsOptions = {
     origin: (origin, callback) => {
         const allowedOrigins = [
             'https://localhost:5000',
+            'https://10.10.6.151:5000',
+            'https://a3k.missaticus.ch:5000',
             'http://localhost:4200',
             'http://10.10.6.151:81',
         ]; // Origines autorisées
