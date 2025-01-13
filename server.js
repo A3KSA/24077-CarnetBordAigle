@@ -75,6 +75,7 @@ app.get('/', async (req, res, next) => {
                     httpOnly: true, // Empêche l'accès via JavaScript
                     expires: midnight, // Définit l'expiration à minuit
                     secure: true, // Utilisez HTTPS en production
+                    sameSite: 'None', // Nécessaire pour les contextes cross-origin
                     path: '/', // Rend le cookie accessible sur toutes les routes
                 });
                 return res.redirect(`/home/${user._id}`); // Rediriger vers Angular avec l'ID utilisateur
